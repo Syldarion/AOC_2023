@@ -66,5 +66,57 @@ def day_01():
     print(calibration_sum)
 
 
+def day_02():
+    input_lines = _read_input("inputs/day02.txt")
+
+    # Part 1
+
+    id_sum = 0
+
+    for i in range(len(input_lines)):
+        line = input_lines[i]
+        game_id = i + 1
+        bad_game = False
+        _, reveal_text = line.split(":")
+        reveals = reveal_text.split(";")
+        for reveal in reveals:
+            cube_counts = [r.strip() for r in reveal.split(",")]
+            for count in cube_counts:
+                number, color = count.split(" ")
+                number = int(number)
+                if (color == "red" and number > 12) or (color == "green" and number > 13) or (color == "blue" and number > 14):
+                    bad_game = True
+                    break
+            if bad_game:
+                break
+        if not bad_game:
+            id_sum += game_id
+
+    print(id_sum)
+
+    # Part 2
+
+    power_sum = 0
+
+    for line in input_lines:
+        _, reveal_text = line.split(":")
+        reveals = reveal_text.split(";")
+        max_red, max_green, max_blue = (0, 0, 0)
+        for reveal in reveals:
+            cube_counts = [r.strip() for r in reveal.split(",")]
+            for count in cube_counts:
+                number, color = count.split(" ")
+                number = int(number)
+                if color == "red" and number > max_red:
+                    max_red = number
+                elif color == "green" and number > max_green:
+                    max_green = number
+                elif color == "blue" and number > max_blue:
+                    max_blue = number
+        power_sum += max_red * max_green * max_blue
+
+    print(power_sum)
+
+
 if __name__ == "__main__":
-    day_01()
+    day_02()
