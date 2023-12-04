@@ -1,3 +1,4 @@
+import math
 import re
 import requests
 
@@ -234,5 +235,39 @@ def day_03():
     print(ratio_sum)
 
 
+def day_04():
+    input_lines = _read_input("inputs/day04.txt")
+
+    card_sum = 0
+    winner_count = []
+
+    for line in input_lines:
+        _, numbers = line.split(":")
+        winners, mine = numbers.split("|")
+        winners = winners.strip()
+        mine = mine.strip()
+
+        winning_numbers = set([int(num) for num in winners.split()])
+        my_numbers = set([int(num) for num in mine.split()])
+
+        matches = winning_numbers.intersection(my_numbers)
+        winner_count.append(len(matches))
+
+        if matches:
+            card_sum += math.pow(2, len(matches) - 1)
+
+    print(card_sum)
+
+    card_count = len(input_lines)
+    card_copies = [1] * card_count
+
+    for i in range(card_count):
+        if winner_count[i] > 0:
+            for j in range(i + 1, min(card_count, i + winner_count[i] + 1)):
+                card_copies[j] += card_copies[i]
+
+    print(sum(card_copies))
+
+
 if __name__ == "__main__":
-    day_03()
+    day_04()
