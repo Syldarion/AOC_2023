@@ -269,6 +269,10 @@ def day_04():
     print(sum(card_copies))
 
 
+def ranges_overlap(start_a, end_a, start_b, end_b):
+    return start_a < end_b and end_a > start_b
+
+
 def day_05():
     input_lines = _read_input("inputs/day05.txt")
 
@@ -307,6 +311,38 @@ def day_05():
                     break
         locations.append(current_mapping)
     print(min(locations))
+
+    seed_starts = seeds[::2]
+    seed_ranges = seeds[1::2]
+
+    def find_lowest_location(range_start, range_end, map_index):
+        locations = []
+
+        had_overlap = False
+        for dest, source, length in maps[map_index]:
+            if ranges_overlap(range_start, range_end, source, source + length):
+                had_overlap = True
+                overlap_start = max(range_start, source)
+                overlap_end = min(range_end, source + length)
+                new_start = overlap_start + (dest - source)
+                new_end = overlap_end + (dest - source)
+                if map_index >= len(maps) - 1:
+                    locations.append(new_start)
+                else:
+                    locations.append(find_lowest_location(new_start, new_end, map_index + 1))
+        if not had_overlap:
+            if map_index >= len(maps) - 1:
+                locations.append(range_start)
+            else:
+                locations.append(find_lowest_location(range_start, range_end, map_index + 1))
+
+        return min(locations)
+
+    lowest_locations = []
+    for i in range(len(seed_starts)):
+        lowest_locations.append(find_lowest_location(seed_starts[i], seed_starts[i] + seed_ranges[i], 0))
+
+    print(min(lowest_locations))
 
 
 if __name__ == "__main__":
