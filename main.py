@@ -269,5 +269,45 @@ def day_04():
     print(sum(card_copies))
 
 
+def day_05():
+    input_lines = _read_input("inputs/day05.txt")
+
+    # we're just going to hard-code input lines
+    seed_line = input_lines[0]
+
+    ranges = [
+        (3, 13),
+        (15, 31),
+        (34, 48),
+        (50, 95),
+        (97, 112),
+        (114, 137),
+        (139, 150)
+    ]
+
+    maps = []
+
+    for line_range in ranges:
+        lines = input_lines[line_range[0]:line_range[1]]
+        map_str = [line.split() for line in lines]
+        map_int = [[int(m[0]), int(m[1]), int(m[2])] for m in map_str]
+        maps.append(map_int)
+
+    seeds = [int(seed) for seed in seed_line.split(":")[1].strip().split()]
+
+    locations = []
+    for seed in seeds:
+        current_mapping = seed
+        for m in maps:
+            temp_m = m[:]
+            temp_m.append([current_mapping, current_mapping, 1])
+            for dest, source, length in m:
+                if source <= current_mapping <= source + length:
+                    current_mapping += (dest - source)
+                    break
+        locations.append(current_mapping)
+    print(min(locations))
+
+
 if __name__ == "__main__":
-    day_04()
+    day_05()
