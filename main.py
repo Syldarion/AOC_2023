@@ -345,5 +345,49 @@ def day_05():
     print(min(lowest_locations))
 
 
+def day_06():
+    race_times = [57, 72, 69, 92]
+    race_records = [291, 1172, 1176, 2026]
+
+    # boat speed = held time
+    # boat distance = boat speed * (race time - held time) = held time * (race time - held time)
+
+    # starting from the center and moving outward, we can get the half count
+
+    def get_possible_times(time, record):
+        possible_times = 0
+        start_time = time // 2
+        for j in range(start_time, time):
+            distance = j * (time - j)
+            if distance > record:
+                possible_times += 1
+            else:
+                break
+        if time % 2 == 0:
+            possible_times = possible_times * 2 - 1
+        else:
+            # on odds, I counted an extra middle one
+            possible_times = (possible_times - 1) * 2
+        return possible_times
+
+    # Part 1
+
+    all_possibilities = []
+
+    for i in range(len(race_times)):
+        all_possibilities.append(get_possible_times(race_times[i], race_records[i]))
+
+    from functools import reduce
+    from operator import mul
+
+    product = reduce(mul, all_possibilities)
+
+    print(product)
+
+    # Part 2
+
+    print(get_possible_times(57726992, 291117211762026))
+
+
 if __name__ == "__main__":
-    day_05()
+    day_06()
