@@ -389,5 +389,114 @@ def day_06():
     print(get_possible_times(57726992, 291117211762026))
 
 
+def day_07():
+    import functools
+
+    input_lines = _read_input("inputs/day07.txt")
+
+    card_values = "-23456789TJQKA"
+    card_values_2 = "-J23456789TQKA"
+    hands_and_bids = [(line.split()[0], int(line.split()[1])) for line in input_lines]
+
+    A_STRONGER = 1
+    B_STRONGER = -1
+
+    def compare_same_type_hands(a, b, value_string):
+        for i in range(len(a)):
+            a_val = value_string.index(a[i])
+            b_val = value_string.index(b[i])
+            if a_val < b_val:
+                return B_STRONGER
+            if b_val < a_val:
+                return A_STRONGER
+        return 0
+
+    def get_hand_type(hand, part_2=False):
+        card_counts = {}
+
+        for card in hand:
+            if card not in card_counts:
+                card_counts[card] = 0
+            card_counts[card] += 1
+
+        if part_2 and "J" in card_counts:
+            # convert Jokers
+            j_value = card_counts["J"]
+            del(card_counts["J"])
+            # oops all Js
+            if not card_counts:
+                return 7
+            sorted_counts = sorted(card_counts.items(), key=lambda x: (-x[1], -card_values_2.index(x[0])))
+            first_key, first_val = sorted_counts[0]
+            sorted_counts[0] = (first_key, first_val + j_value)
+            card_counts = {key: value for key, value in sorted_counts}
+
+        if len(card_counts) == 1:
+            # 5-of-a-kind
+            return 7
+        elif len(card_counts) == 2:
+            # 4-of-a-kind or full house
+            if any([count == 4 for count in card_counts.values()]):
+                # 4-of-a-kind
+                return 6
+            # full house
+            return 5
+        elif len(card_counts) == 3:
+            # 3-of-a-kind or two pair
+            if any([count == 3 for count in card_counts.values()]):
+                # 3-of-a-kind
+                return 4
+            # two pair
+            return 3
+        elif len(card_counts) == 4:
+            # one pair
+            return 2
+        else:
+            # high card
+            return 1
+
+    def compare_hands_p1(a, b):
+        hand_a = a[0]
+        hand_b = b[0]
+
+        type_a = get_hand_type(hand_a, False)
+        type_b = get_hand_type(hand_b, False)
+
+        if type_a < type_b:
+            return B_STRONGER
+        elif type_b < type_a:
+            return A_STRONGER
+        else:
+            return compare_same_type_hands(hand_a, hand_b, card_values)
+
+    def compare_hands_p2(a, b):
+        hand_a = a[0]
+        hand_b = b[0]
+
+        type_a = get_hand_type(hand_a, True)
+        type_b = get_hand_type(hand_b, True)
+
+        if type_a < type_b:
+            return B_STRONGER
+        elif type_b < type_a:
+            return A_STRONGER
+        else:
+            return compare_same_type_hands(hand_a, hand_b, card_values_2)
+
+    sorted_hands = sorted(hands_and_bids, key=functools.cmp_to_key(compare_hands_p1))
+
+    sum = 0
+    for i in range(len(sorted_hands)):
+        sum += sorted_hands[i][1] * (i + 1)
+    print(sum)
+
+    sorted_hands = sorted(hands_and_bids, key=functools.cmp_to_key(compare_hands_p2))
+
+    sum = 0
+    for i in range(len(sorted_hands)):
+        sum += sorted_hands[i][1] * (i + 1)
+    print(sum)
+
+
 if __name__ == "__main__":
-    day_06()
+    day_07()
