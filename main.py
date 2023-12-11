@@ -498,5 +498,92 @@ def day_07():
     print(sum)
 
 
+def day_08():
+    input_lines = _read_input("inputs/day08.txt")
+
+    directions = input_lines[0]
+    direction_length = len(directions)
+    map_text = input_lines[2:]
+
+    desert_map = {}
+
+    line_pattern = r'\b[A-Z]{3}\b'
+
+    for line in map_text:
+        start, left, right = re.findall(line_pattern, line)
+        desert_map[start] = (left, right)
+
+    def steps_to_zzz(start_location):
+        location = start_location
+        step = 0
+
+        while location != "ZZZ":
+            direction = directions[step % direction_length]
+            location = desert_map[location][0 if direction == "L" else 1]
+            step += 1
+
+        return step
+
+    print(steps_to_zzz("AAA"))
+
+    def steps_to_any_z(start_location):
+        location = start_location
+        step = 0
+
+        while not location.endswith("Z"):
+            direction = directions[step % direction_length]
+            location = desert_map[location][0 if direction == "L" else 1]
+            step += 1
+
+        return step
+
+    steps_to_finish = []
+    for key in desert_map:
+        if key.endswith("A"):
+            steps_to_finish.append(steps_to_any_z(key))
+
+    import math
+
+    def lcm_of_array(arr):
+        def lcm(a, b):
+            return abs(a * b) // math.gcd(a, b)
+
+        current_lcm = arr[0]
+        for number in arr[1:]:
+            current_lcm = lcm(current_lcm, number)
+
+        return current_lcm
+
+    print(lcm_of_array(steps_to_finish))
+
+
+def day_09():
+    input_lines = _read_input("inputs/day09.txt")
+
+    def get_next_value(value_list):
+        difference_list = []
+        for i in range(len(value_list) - 1):
+            difference_list.append(value_list[i + 1] - value_list[i])
+        if any([v != 0 for v in difference_list]):
+            return get_next_value(difference_list) + value_list[-1]
+        else:
+            return value_list[-1]
+
+    value_sum = 0
+    backwards_sum = 0
+
+    for line in input_lines:
+        line_values = [int(v) for v in line.split()]
+        line_values_2 = line_values[:]
+        line_values_2.reverse()
+        next_value = get_next_value(line_values)
+        next_value_2 = get_next_value(line_values_2)
+        value_sum += next_value
+        backwards_sum += next_value_2
+
+    print(value_sum)
+    print(backwards_sum)
+
+
 if __name__ == "__main__":
-    day_07()
+    day_09()
