@@ -585,5 +585,61 @@ def day_09():
     print(backwards_sum)
 
 
+def day_10():
+    pipes = _read_input("inputs/day10.txt")
+
+    connections = {
+        "|": [(0, -1), (0, 1)],
+        "-": [(-1, 0), (1, 0)],
+        "L": [(0, -1), (1, 0)],
+        "J": [(0, -1), (-1, 0)],
+        "7": [(0, 1), (-1, 0)],
+        "F": [(0, 1), (1, 0)],
+    }
+
+    def traverse(start, dir):
+        new_location = (start[0] + dir[0], start[1] + dir[1])
+        icon = pipes[new_location[1]][new_location[0]]
+        if icon == "S":
+            return new_location, (0, 0)
+        inverse = (-dir[0], -dir[1])
+        if connections[icon][0] == inverse:
+            return new_location, connections[icon][1]
+        else:
+            return new_location, connections[icon][0]
+
+
+    start_x = 0
+    start_y = 0
+
+    for index, line in enumerate(pipes):
+        if "S" in line:
+            start_y = index
+            start_x = line.index("S")
+
+    current = None
+    next_dir = None
+    length = 0
+
+    for direction in [(0, 1), (0, -1), (1, 0), (-1, 0)]:
+        location = (start_x + direction[0], start_y + direction[1])
+        if location[0] < 0 or location[1] < 0 or location[0] >= len(pipes[0]) or location[1] >= len(pipes):
+            continue
+        for conn in connections[pipes[start_y + direction[1]][start_x + direction[0]]]:
+            conn_location = (location[0] + conn[0], location[1] + conn[1])
+            if conn_location[0] == start_x and conn_location[1] == start_y:
+                current, next_dir = traverse((start_x, start_y), (-conn[0], -conn[1]))
+                length = 1
+                break
+        if current:
+            break
+
+    while current != (start_x, start_y):
+        current, next_dir = traverse(current, next_dir)
+        length += 1
+
+    print(length // 2)
+
+
 if __name__ == "__main__":
-    day_09()
+    day_10()
